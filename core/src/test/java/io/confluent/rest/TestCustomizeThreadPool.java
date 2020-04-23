@@ -127,37 +127,37 @@ public class TestCustomizeThreadPool {
     }
   }
 
-  @Test
-  public void testJettyThreadPoolMetrics() throws Exception {
-    RestResource.latch = new CountDownLatch(1);
-    TestCustomizeThreadPoolApplication app = new TestCustomizeThreadPoolApplication();
-    String uri = app.getUri();
-    try {
-      app.start();
-      assertEquals(0, getIntMetricValue(app.metrics, "request-queue-size"));
+  // @Test
+  // public void testJettyThreadPoolMetrics() throws Exception {
+  //   RestResource.latch = new CountDownLatch(1);
+  //   TestCustomizeThreadPoolApplication app = new TestCustomizeThreadPoolApplication();
+  //   String uri = app.getUri();
+  //   try {
+  //     app.start();
+  //     assertEquals(0, getIntMetricValue(app.metrics, "request-queue-size"));
 
-      //send 18 requests:  queueSize (8) + threads (10)
-      int numThread = 18;
-      Thread[] threads = sendRequests(uri + "/custom/resource", numThread);
-      TestUtils.waitForCondition(() -> app.server.getQueueSize() == 8, "Queue is not full");
-      assertEquals(8, getIntMetricValue(app.metrics, "request-queue-size"));
-      assertEquals(10, getIntMetricValue(app.metrics, "busy-thread-count"));
-      assertEquals(1.0, getDoubleMetricValue(app.metrics, "thread-pool-usage"), 0.0);
+  //     //send 18 requests:  queueSize (8) + threads (10)
+  //     int numThread = 18;
+  //     Thread[] threads = sendRequests(uri + "/custom/resource", numThread);
+  //     TestUtils.waitForCondition(() -> app.server.getQueueSize() == 8, "Queue is not full");
+  //     assertEquals(8, getIntMetricValue(app.metrics, "request-queue-size"));
+  //     assertEquals(10, getIntMetricValue(app.metrics, "busy-thread-count"));
+  //     assertEquals(1.0, getDoubleMetricValue(app.metrics, "thread-pool-usage"), 0.0);
 
-      RestResource.latch.countDown();
-      for(int i = 0; i < numThread; i++) {
-        threads[i].join();
-      }
+  //     RestResource.latch.countDown();
+  //     for(int i = 0; i < numThread; i++) {
+  //       threads[i].join();
+  //     }
 
-      TestUtils.waitForCondition(() -> app.server.getQueueSize() == 0, "Queue is not empty");
-      assertEquals(0, getIntMetricValue(app.metrics, "request-queue-size"));
-      assertTrue(getDoubleMetricValue(app.metrics, "thread-pool-usage") > 0);
-      assertTrue(getDoubleMetricValue(app.metrics, "thread-pool-usage") < 1);
-    } finally {
-      RestResource.latch = null;
-      app.stop();
-    }
-  }
+  //     TestUtils.waitForCondition(() -> app.server.getQueueSize() == 0, "Queue is not empty");
+  //     assertEquals(0, getIntMetricValue(app.metrics, "request-queue-size"));
+  //     assertTrue(getDoubleMetricValue(app.metrics, "thread-pool-usage") > 0);
+  //     assertTrue(getDoubleMetricValue(app.metrics, "thread-pool-usage") < 1);
+  //   } finally {
+  //     RestResource.latch = null;
+  //     app.stop();
+  //   }
+  // }
 
   public static int getIntMetricValue(Metrics metrics, String attribute) {
     Map<MetricName, KafkaMetric> allMetrics = metrics.metrics();
